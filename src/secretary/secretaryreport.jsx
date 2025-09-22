@@ -402,13 +402,58 @@ const SecretaryReport = () => {
             value={categoryFilter}
             onChange={handleCategoryFilterChange}
           >
-            <option value="">All Categories</option>
-            <option value="Administrative">Administrative</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Maintenance">Maintenance</option>
-            <option value="Events">Events</option>
-            <option value="Charity">Charity</option>
-            <option value="Other">Other</option>
+           <option value="">All Categories</option>
+
+<optgroup label="I. Parish Receipts Subject to 10% Diocesan Share">
+  <option value="Ministerial Services">A. Ministerial Services</option>
+  <option value="Collections">B. Collections</option>
+  <option value="Other Income">C. Other Income</option>
+</optgroup>
+
+<optgroup label="II. Diocesan Receipts Not Subject to 10% Diocesan Share">
+  <option value="Donation from Special Projects">A. Donation from Special Projects</option>
+  <option value="Other Church Income/Donations Individuals">B. Other Church Income/Donations Individuals</option>
+  <option value="Foreign & Local Fundings Assistance">C. Foreign & Local Fundings Assistance</option>
+</optgroup>
+
+<optgroup label="III. Diocesan Receipts">
+  <option value="Pontifical Collections">A. Pontifical Collections</option>
+  <option value="National Collections">B. National Collections</option>
+  <option value="Diocesan Collections">C. Diocesan Collections</option>
+</optgroup>
+
+<optgroup label="Disbursement">
+  <option value="Priest Honoraria">I. Priest Honoraria</option>
+  <option value="Rectory Expenses">II. Rectory Expenses</option>
+  <option value="Regular Expenses">III. Regular Expenses</option>
+  <option value="Church Supplies & Other Expenses">IV. Church Supplies & Other Expenses</option>
+  <option value="Repair & Maintenance">V. Repair & Maintenance</option>
+  <option value="Honorarium">VI. Honorarium</option>
+  <option value="Pastoral Program">VII. Pastoral Program</option>
+  <option value="Special Project Donation">VIII. Special Project Donation</option>
+  <option value="Remittance to the Curia">IX. Remittance to the Curia</option>
+  <option value="Cash Advances (Receivables)">X. Cash Advances (Receivables)</option>
+</optgroup>
+
+<optgroup label="IV. Other Receipts">
+  <option value="Parish Receipts Subject">Parish Receipts Subject</option>
+  <option value="Ministerial Services">A. Ministerial Services</option>
+  <option value="Collections">B. Collections</option>
+  <option value="Other Income">C. Other Income</option>
+</optgroup>
+
+<optgroup label="II. Diocesan Receipts Not Subject to 10% Diocesan Share (Other)">
+  <option value="Donation from Special Projects">A. Donation from Special Projects</option>
+  <option value="Other Church Income/Donations Individuals">B. Other Church Income/Donations Individuals</option>
+  <option value="Foreign & Local Fundings Assistance">C. Foreign & Local Fundings Assistance</option>
+</optgroup>
+
+<optgroup label="III. Diocesan Receipts (Other)">
+  <option value="Pontifical Collections">A. Pontifical Collections</option>
+  <option value="National Collections">B. National Collections</option>
+  <option value="Diocesan Collections">C. Diocesan Collections</option>
+</optgroup>
+
           </select>
 
           <button className="add-btn-sr" onClick={() => toggleModal()}>
