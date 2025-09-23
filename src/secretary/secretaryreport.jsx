@@ -18,11 +18,11 @@ const SecretaryReport = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ text: "", type: "" });
   const [availableYears, setAvailableYears] = useState([]);
-  
+
   // State for expenses data
   const [expenses, setExpenses] = useState([]);
   const [totalExpenses, setTotalExpenses] = useState(0);
-  
+
   // State for form values to calculate total cost dynamically
   const [formValues, setFormValues] = useState({
     amount: 0,
@@ -38,25 +38,25 @@ const SecretaryReport = () => {
   const fetchExpenses = async () => {
     try {
       setLoading(true);
-      
+
       // Build query parameters
       let queryParams = new URLSearchParams();
       if (categoryFilter) queryParams.append('category', categoryFilter);
       if (monthFilter) {
         // Convert month name to number (January = 1, February = 2, etc.)
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                             'July', 'August', 'September', 'October', 'November', 'December'];
         const monthNumber = monthNames.indexOf(monthFilter) + 1;
         queryParams.append('month', monthNumber);
       }
       if (yearFilter) queryParams.append('year', yearFilter);
-      
+
       const response = await axios.get(`https://parishofdivinemercy.com/backend/report.php?${queryParams.toString()}`);
-      
+
       if (response.data.success) {
         setExpenses(response.data.reports);
         setTotalExpenses(response.data.totalExpenses);
-        
+
         // Set available years for filter dropdown
         if (response.data.availableYears) {
           setAvailableYears(response.data.availableYears);
@@ -135,15 +135,15 @@ const SecretaryReport = () => {
 
   // Filter expenses based on search term (local filtering)
   const filteredExpenses = expenses.filter(expense => {
-    return searchTerm === "" || 
-      expense.expenseName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    return searchTerm === "" ||
+      expense.expenseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       expense.description?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
+
     try {
       // Parse numeric values
       const amount = parseFloat(formData.get('amount'));
@@ -151,7 +151,7 @@ const SecretaryReport = () => {
       const expenseName = formData.get('expenseName');
       const category = formData.get('category');
       const description = formData.get('description');
-      
+
       // Format date of expense - current date in YYYY-MM-DD format for new expenses
       // For existing expenses, keep the original date
       let dateOfExpense;
@@ -163,7 +163,7 @@ const SecretaryReport = () => {
         const today = new Date();
         dateOfExpense = today.toISOString().slice(0, 10); // YYYY-MM-DD format
       }
-      
+
       const expenseData = {
         expenseName,
         category,
@@ -172,14 +172,14 @@ const SecretaryReport = () => {
         dateOfExpense,
         description
       };
-      
+
       if (isEditing) {
         // Add reportID for update
         expenseData.reportID = currentExpense.reportID;
-        
+
         // Update existing expense
         const response = await axios.put('https://parishofdivinemercy.com/backend/report.php', expenseData);
-        
+
         if (response.data.success) {
           setMessage({ text: "Expense updated successfully", type: "success" });
         } else {
@@ -188,23 +188,23 @@ const SecretaryReport = () => {
       } else {
         // Add new expense
         const response = await axios.post('https://parishofdivinemercy.com/backend/report.php', expenseData);
-        
+
         if (response.data.success) {
           setMessage({ text: "Expense added successfully", type: "success" });
         } else {
           setMessage({ text: response.data.message || "Failed to add expense", type: "error" });
         }
       }
-      
+
       // Close modal and refresh data
       toggleModal();
       fetchExpenses();
-      
+
     } catch (error) {
       console.error("Error saving expense:", error);
-      setMessage({ 
-        text: error.response?.data?.message || "An error occurred while saving the expense", 
-        type: "error" 
+      setMessage({
+        text: error.response?.data?.message || "An error occurred while saving the expense",
+        type: "error"
       });
     }
   };
@@ -231,7 +231,7 @@ const SecretaryReport = () => {
       if (dateTimeString.match(/^\d{4}-\d{2}-\d{2}$/)) {
         return dateTimeString;
       }
-      
+
       // Extract just the date part if the format has time component
       const datePart = dateTimeString.split(' ')[0];
       const date = new Date(datePart);
@@ -263,44 +263,44 @@ const SecretaryReport = () => {
 
       // Create a new jsPDF instance in portrait, A4 format
       const doc = new jsPDF();
-      
+
       // Define colors based on CSS
       const primaryColor = [179, 112, 31]; // #b3701f
       const secondaryColor = [87, 57, 1];  // #573901
       const lightColor = [253, 248, 232];  // #fdf8e8
-      
+
       // Set up document properties
       const pageWidth = doc.internal.pageSize.getWidth();
-      
+
       // Add title
       doc.setFontSize(20);
       doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
       doc.text('Parish of Divine Mercy', pageWidth / 2, 20, { align: 'center' });
-      
+
       doc.setFontSize(16);
       doc.text('Expense Report', pageWidth / 2, 30, { align: 'center' });
-      
+
       // Add report information
       doc.setFontSize(10);
       doc.setTextColor(0, 0, 0);
-      
+
       // Add filter info
       let filterText = '';
       if (categoryFilter) filterText += `Category: ${categoryFilter}   `;
       if (monthFilter) filterText += `Month: ${monthFilter}   `;
       if (yearFilter) filterText += `Year: ${yearFilter}`;
-      
+
       if (filterText) {
         doc.text('Filters: ' + filterText, 14, 40);
       }
-      
+
       // Add date
       const today = new Date();
       doc.text('Generated: ' + today.toLocaleDateString(), 14, 45);
-      
+
       // Generate table - prepare data
       const tableRows = [];
-      
+
       // Process each expense into a row
       filteredExpenses.forEach(expense => {
         const row = [
@@ -313,7 +313,7 @@ const SecretaryReport = () => {
         ];
         tableRows.push(row);
       });
-      
+
       // Create table with jspdf-autotable
       doc.autoTable({
         startY: 50,
@@ -338,19 +338,19 @@ const SecretaryReport = () => {
           5: { cellWidth: 25, halign: 'center' }
         }
       });
-      
+
       // Add total at the bottom
       const finalY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : 50) + 10;
-      
+
       // Add total box
       doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
       doc.rect(pageWidth - 80, finalY - 5, 65, 10, 'F');
-      
+
       // Add total text
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(12);
       doc.text(`Total Expenses: ${formatCurrency(totalExpenses)}`, pageWidth - 15, finalY, { align: 'right' });
-      
+
       // Set filename
       let filename = 'Expense_Report';
       if (categoryFilter) filename += `_${categoryFilter}`;
@@ -358,17 +358,17 @@ const SecretaryReport = () => {
       if (yearFilter) filename += `_${yearFilter}`;
       filename += '_' + today.toISOString().split('T')[0];
       filename += '.pdf';
-      
+
       // Save the PDF
       doc.save(filename);
-      
+
       setMessage({ text: "PDF report generated successfully", type: "success" });
-      
+
     } catch (error) {
       console.error("Error generating PDF:", error);
-      setMessage({ 
-        text: "Failed to generate PDF report: " + (error.message || "Unknown error"), 
-        type: "error" 
+      setMessage({
+        text: "Failed to generate PDF report: " + (error.message || "Unknown error"),
+        type: "error"
       });
     }
   };
@@ -378,26 +378,26 @@ const SecretaryReport = () => {
       <div className="title-container-sr">
         <h1 className="title-sr">EXPENSE REPORTS</h1>
       </div>
-      
+
       {message.text && (
         <div className={`message ${message.type}`}>
           {message.text}
         </div>
       )}
-      
+
       <div className="report-actions-sr">
         <div className="search-bar-sr">
-          <input 
-            type="text" 
-            placeholder="Search expenses by name or description" 
-            value={searchTerm} 
+          <input
+            type="text"
+            placeholder="Search expenses by name or description"
+            value={searchTerm}
             onChange={handleSearchChange}
           />
           <FontAwesomeIcon icon={faSearch} className="search-icon-sr" />
         </div>
 
         <div className="filter-add-container-sr">
-          <select 
+          <select
             className="filter-select-sr"
             value={categoryFilter}
             onChange={handleCategoryFilterChange}
@@ -409,7 +409,60 @@ const SecretaryReport = () => {
             <option value="Events">Events</option>
             <option value="Charity">Charity</option>
             <option value="Other">Other</option>
+
           </select>
+          {/* Show this only when "Other" is chosen */}
+      {selectedCategory === "Other" && (
+        <div className="other-category-container">
+          <label>Other Category</label>
+          <select
+            value={selectedSubCategory}
+            onChange={(e) => setSelectedSubCategory(e.target.value)}
+            className="filter-select-sr"
+          >
+            <option value="">-- Select Sub-Category --</option>
+
+            <optgroup label="I. Parish Receipts Subject to 10% Diocesan Share">
+              <option value="Ministerial Services">A. Ministerial Services</option>
+              <option value="Collections">B. Collections</option>
+              <option value="Other Income">C. Other Income</option>
+            </optgroup>
+
+            <optgroup label="II. Diocesan Receipts Not Subject to 10%">
+              <option value="Donation from Special Projects">A. Donation from Special Projects</option>
+              <option value="Other Church Income/Donations Individuals">
+                B. Other Church Income/Donations Individuals
+              </option>
+              <option value="Foreign & Local Fundings Assistance">C. Foreign & Local Fundings Assistance</option>
+            </optgroup>
+
+            <optgroup label="III. Diocesan Receipts">
+              <option value="Pontifical Collections">A. Pontifical Collections</option>
+              <option value="National Collections">B. National Collections</option>
+              <option value="Diocesan Collections">C. Diocesan Collections</option>
+            </optgroup>
+
+            <optgroup label="Disbursement">
+              <option value="Priest Honoraria">I. Priest Honoraria</option>
+              <option value="Rectory Expenses">II. Rectory Expenses</option>
+              <option value="Regular Expenses">III. Regular Expenses</option>
+              <option value="Church Supplies & Other Expenses">IV. Church Supplies & Other Expenses</option>
+              <option value="Repair & Maintenance">V. Repair & Maintenance</option>
+              <option value="Honorarium">VI. Honorarium</option>
+              <option value="Pastoral Program">VII. Pastoral Program</option>
+              <option value="Special Project Donation">VIII. Special Project Donation</option>
+              <option value="Remittance to the Curia">IX. Remittance to the Curia</option>
+              <option value="Cash Advances (Receivables)">X. Cash Advances (Receivables)</option>
+            </optgroup>
+
+            <optgroup label="IV. Other Receipts">
+              <option value="Parish Receipts Subject">Parish Receipts Subject</option>
+              <option value="Ministerial Services">A. Ministerial Services</option>
+              <option value="Collections">B. Collections</option>
+              <option value="Other Income">C. Other Income</option>
+            </optgroup>
+          </select>
+
 
           <button className="add-btn-sr" onClick={() => toggleModal()}>
             <FontAwesomeIcon icon={faPlus} /> ADD
@@ -482,18 +535,18 @@ const SecretaryReport = () => {
               <div className="form-row-sr">
                 <div className="form-group-sr">
                   <label>Expense Name</label>
-                  <input 
-                    type="text" 
-                    name="expenseName" 
-                    required 
+                  <input
+                    type="text"
+                    name="expenseName"
+                    required
                     defaultValue={currentExpense?.expenseName || ''}
                   />
                 </div>
                 <div className="form-group-sr">
                   <label>Category</label>
-                  <select 
-                    name="category" 
-                    required 
+                  <select
+                    name="category"
+                    required
                     defaultValue={currentExpense?.category || ''}
                   >
                     <option value="">Select Category</option>
@@ -504,16 +557,69 @@ const SecretaryReport = () => {
                     <option value="Charity">Charity</option>
                     <option value="Other">Other</option>
                   </select>
+
+                  {/* Show this only when "Other" is chosen */}
+      {selectedCategory === "Other" && (
+        <div className="other-category-container">
+          <label>Other Category</label>
+          <select
+            value={selectedSubCategory}
+            onChange={(e) => setSelectedSubCategory(e.target.value)}
+            className="filter-select-sr"
+          >
+            <option value="">-- Select Sub-Category --</option>
+
+            <optgroup label="I. Parish Receipts Subject to 10% Diocesan Share">
+              <option value="Ministerial Services">A. Ministerial Services</option>
+              <option value="Collections">B. Collections</option>
+              <option value="Other Income">C. Other Income</option>
+            </optgroup>
+
+            <optgroup label="II. Diocesan Receipts Not Subject to 10%">
+              <option value="Donation from Special Projects">A. Donation from Special Projects</option>
+              <option value="Other Church Income/Donations Individuals">
+                B. Other Church Income/Donations Individuals
+              </option>
+              <option value="Foreign & Local Fundings Assistance">C. Foreign & Local Fundings Assistance</option>
+            </optgroup>
+
+            <optgroup label="III. Diocesan Receipts">
+              <option value="Pontifical Collections">A. Pontifical Collections</option>
+              <option value="National Collections">B. National Collections</option>
+              <option value="Diocesan Collections">C. Diocesan Collections</option>
+            </optgroup>
+
+            <optgroup label="Disbursement">
+              <option value="Priest Honoraria">I. Priest Honoraria</option>
+              <option value="Rectory Expenses">II. Rectory Expenses</option>
+              <option value="Regular Expenses">III. Regular Expenses</option>
+              <option value="Church Supplies & Other Expenses">IV. Church Supplies & Other Expenses</option>
+              <option value="Repair & Maintenance">V. Repair & Maintenance</option>
+              <option value="Honorarium">VI. Honorarium</option>
+              <option value="Pastoral Program">VII. Pastoral Program</option>
+              <option value="Special Project Donation">VIII. Special Project Donation</option>
+              <option value="Remittance to the Curia">IX. Remittance to the Curia</option>
+              <option value="Cash Advances (Receivables)">X. Cash Advances (Receivables)</option>
+            </optgroup>
+
+            <optgroup label="IV. Other Receipts">
+              <option value="Parish Receipts Subject">Parish Receipts Subject</option>
+              <option value="Ministerial Services">A. Ministerial Services</option>
+              <option value="Collections">B. Collections</option>
+              <option value="Other Income">C. Other Income</option>
+            </optgroup>
+          </select>
+
                 </div>
               </div>
 
               <div className="form-row-sr">
                 <div className="form-group-sr">
                   <label>Amount (₱)</label>
-                  <input 
-                    type="number" 
-                    name="amount" 
-                    required 
+                  <input
+                    type="number"
+                    name="amount"
+                    required
                     step="0.01"
                     min="0"
                     defaultValue={currentExpense?.amount || ''}
@@ -522,10 +628,10 @@ const SecretaryReport = () => {
                 </div>
                 <div className="form-group-sr">
                   <label>Quantity</label>
-                  <input 
-                    type="number" 
-                    name="quantity" 
-                    required 
+                  <input
+                    type="number"
+                    name="quantity"
+                    required
                     min="1"
                     defaultValue={currentExpense?.quantity || 1}
                     onChange={handleInputChange}
@@ -533,9 +639,9 @@ const SecretaryReport = () => {
                 </div>
                 <div className="form-group-sr">
                   <label>Total Cost (₱)</label>
-                  <input 
-                    type="number" 
-                    name="totalCost" 
+                  <input
+                    type="number"
+                    name="totalCost"
                     readOnly
                     value={calculateTotalCost()}
                   />
@@ -547,16 +653,16 @@ const SecretaryReport = () => {
                   <label>Date of Expense</label>
                   {isEditing ? (
                     // For editing - show date as read-only
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       readOnly
                       value={formatDate(currentExpense?.dateOfExpense || '')}
                     />
                   ) : (
                     // For new expense - show current date as readonly
-                    <input 
-                      type="text" 
-                      name="expenseDate" 
+                    <input
+                      type="text"
+                      name="expenseDate"
                       readOnly
                       value={new Date().toISOString().slice(0, 10)} // YYYY-MM-DD format
                     />
@@ -567,8 +673,8 @@ const SecretaryReport = () => {
               <div className="form-row-sr">
                 <div className="form-group-sr">
                   <label>Description</label>
-                  <textarea 
-                    name="description" 
+                  <textarea
+                    name="description"
                     rows="3"
                     defaultValue={currentExpense?.description || ''}
                   ></textarea>
