@@ -1,0 +1,26 @@
+
+.report-table-sr thead th {
+  text-align: left;
+  padding: 8px 12px;
+  background: #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.report-table-sr tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef2f6;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr; /* single column on small screens */
+  }
+  .gcash-input { gap: 8px; }
+  .report-table-sr thead { display: none; }
+  .report-table-sr tbody td { display: block; width: 100%; box-sizing: border-box; }
+  .report-table-sr tbody tr { margin-bottom: 12px; display: block; border: 1px solid #eee; border-radius: 8px; padding: 8px; }
+  .report-table-sr tbody td::before { content: attr(data-label); font-weight: 600; display: block; margin-bottom: 6px; color: #374151; }
+}
